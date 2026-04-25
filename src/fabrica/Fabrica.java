@@ -1,6 +1,5 @@
 package fabrica;
 
-import comum.LogService;
 import comum.Veiculo;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -43,8 +42,7 @@ public class Fabrica {
         v.setPosFabrica(posicao);
         esteiraCircular[tail] = v;
 
-        // Log de Produção [cite: 38]
-        LogService.gravar("log_producao_fabrica.txt", "PRODUÇÃO: " + v + " | Pos Esteira: " + posicao); // [cite: 45]
+        System.out.printf("PRODUÇÃO: " + v + " | Pos Esteira: " + posicao + "%n"); // [cite: 45]
 
         tail = (tail + 1) % 40;
 
@@ -59,7 +57,7 @@ public class Fabrica {
                 new Thread(() -> enviarParaLoja(lojaSocket)).start();
             }
         } catch (IOException e) {
-            LogService.gravar("erros_fabrica.txt", "Erro no servidor: " + e.getMessage());
+            System.out.printf("Erro no servidor: " + e.getMessage());
         }
     }
 
@@ -80,10 +78,10 @@ public class Fabrica {
                 out.writeObject(v); // [cite: 52]
 
                 // Log de Venda para Loja [cite: 46]
-                LogService.gravar("log_venda_para_loja.txt", "VENDA PARA LOJA: " + v + " | Saiu da Pos: " + posOriginal);
+                System.out.printf("VENDA PARA LOJA: " + v + " | Saiu da Pos: " + posOriginal + "%n");
             }
         } catch (Exception e) {
-            LogService.gravar("erros_fabrica.txt", "Conexão com loja encerrada.");
+            System.out.printf("Conexão com loja encerrada.%n");
         }
     }
 

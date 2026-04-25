@@ -1,6 +1,5 @@
 package loja;
 
-import comum.LogService;
 import comum.Veiculo;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -30,12 +29,11 @@ public class LojaMain {
                     v.setPosLoja(posLoja);
 
                     // REQUISITO VI.1: Log de Recebimento
-                    String msgLog = String.format("RECEBIMENTO - Loja: %d | %s | Pos Esteira Loja: %d",
+                    System.out.printf("RECEBIMENTO - Loja: %d | %s | Pos Esteira Loja: %d%n",
                             lojaId, v.toString(), posLoja);
-                    LogService.gravar("log_loja_" + lojaId + "_recebimento.txt", msgLog);
                 }
             } catch (Exception e) {
-                LogService.gravar("erros_loja.txt", "Loja " + lojaId + " desconectada da fábrica.");
+                System.out.printf("Loja " + lojaId + " desconectada da fábrica.");
             }
         }).start();
     }
@@ -48,7 +46,7 @@ public class LojaMain {
                 new Thread(() -> processarVenda(clienteSocket)).start();
             }
         } catch (IOException e) {
-            LogService.gravar("erros_loja.txt", "Erro no servidor da Loja " + lojaId);
+            System.out.printf("Erro no servidor da Loja " + lojaId);
         }
     }
 
@@ -61,9 +59,7 @@ public class LojaMain {
             out.writeObject(v);
 
             // REQUISITO VI.2: Log de Venda ao Cliente
-            String msgLog = String.format("VENDA_CLIENTE - Loja: %d | %s | Status: Entregue",
-                    lojaId, v.toString());
-            LogService.gravar("log_loja_" + lojaId + "_vendas.txt", msgLog);
+            System.out.println("VENDA_CLIENTE - Loja: " + lojaId + "| Status: Entregue%n");
 
         } catch (Exception e) {
             // Erro silencioso ou log de erro de rede
@@ -72,13 +68,13 @@ public class LojaMain {
 
     public static void main(String[] args) {
         if (args.length == 0) {
-            System.out.println("Por favor, informe o ID da loja (1, 2 ou 3) nos argumentos.");
+            System.out.printf("Por favor, informe o ID da loja (1, 2 ou 3) nos argumentos.%n");
             return;
         }
         int id = Integer.parseInt(args[0]);
         LojaMain loja = new LojaMain(id);
 
-        System.out.println("Iniciando Loja " + id + "...");
+        System.out.printf("Iniciando Loja " + id + "...%n");
         loja.conectarNaFabrica();
         loja.iniciarServidorDeVendas();
     }

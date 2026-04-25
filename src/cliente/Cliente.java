@@ -1,6 +1,5 @@
 package cliente;
 
-import comum.LogService;
 import comum.Veiculo;
 import java.io.ObjectInputStream;
 import java.net.Socket;
@@ -39,10 +38,8 @@ public class Cliente extends Thread {
                         garagem.add(veiculoComprado);
 
                         // REQUISITO VII: Log de Compra do Cliente
-                        String msgLog = String.format("COMPRA_CLIENTE - Cliente ID: %d | %s | Loja: %d | Total na Garagem: %d",
+                        System.out.printf("COMPRA_CLIENTE - Cliente ID: %d | %s | Loja: %d | Total na Garagem: %d%n",
                                 clienteId, veiculoComprado.toString(), lojaAlvo, garagem.size());
-
-                        LogService.gravar("log_cliente_" + clienteId + ".txt", msgLog);
                     }
                 } catch (Exception e) {
                     // Se a loja estiver vazia ou offline, o cliente aguarda um pouco antes de tentar novamente
@@ -58,7 +55,7 @@ public class Cliente extends Thread {
     }
 
     public static void main(String[] args) {
-        System.out.println("Iniciando 20 threads de clientes...");
+        System.out.printf("Iniciando 20 threads de clientes...%n");
 
         // REQUISITO IV: Criação das 20 threads de clientes
         for (int i = 1; i <= 20; i++) {

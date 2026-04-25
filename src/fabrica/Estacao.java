@@ -16,7 +16,7 @@ class Estacao {
         for (int i = 0; i < 5; i++) new Funcionario(i, this).start();
     }
 
-    class Funcionario extends Thread {
+    static class Funcionario extends Thread {
         private final int fId;
         private final Estacao est;
 
