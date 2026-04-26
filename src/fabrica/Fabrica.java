@@ -1,17 +1,18 @@
 package fabrica;
 
-import comum.Veiculo;
+import veiculo.Veiculo;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.Semaphore;
 
 public class Fabrica {
-    private final Semaphore estoquePecas = new Semaphore(500); //
-    private final Semaphore esteiraSolicitacao = new Semaphore(5); //
+    private final Semaphore estoquePecas = new Semaphore(500);
+    private final Semaphore esteiraSolicitacao = new Semaphore(5);
 
-    private final Veiculo[] esteiraCircular = new Veiculo[40]; //
+    private final Veiculo[] esteiraCircular = new Veiculo[40];
     private int head = 0;
     private int tail = 0;
     private int contadorGlobal = 1;
@@ -21,8 +22,8 @@ public class Fabrica {
     private final Semaphore mutexEsteira = new Semaphore(1);
 
     public void solicitarPeca(int estacaoId) throws InterruptedException {
-        esteiraSolicitacao.acquire(); //
-        estoquePecas.acquire(); //
+        esteiraSolicitacao.acquire();
+        estoquePecas.acquire();
         Thread.sleep(100);
         esteiraSolicitacao.release();
     }
@@ -30,7 +31,6 @@ public class Fabrica {
     public void produzir(int estId, int funcId) throws InterruptedException {
         solicitarPeca(estId);
 
-        // Lógica de alternância conforme requisitos
         String cor = (contadorGlobal % 3 == 1) ? "R" : (contadorGlobal % 3 == 2) ? "G" : "B";
         String tipo = (contadorGlobal % 2 == 1) ? "SUV" : "SEDAN";
 
@@ -38,11 +38,11 @@ public class Fabrica {
         mutexEsteira.acquire();
 
         int posicao = tail;
-        Veiculo v = new Veiculo(contadorGlobal++, cor, tipo, estId, funcId); // [cite: 40, 43, 44]
+        Veiculo v = new Veiculo(contadorGlobal++, cor, tipo, estId, funcId);
         v.setPosFabrica(posicao);
         esteiraCircular[tail] = v;
 
-        System.out.printf("PRODUÇÃO: " + v + " | Pos Esteira: " + posicao + "%n"); // [cite: 45]
+        System.out.printf("PRODUÇÃO: " + v + " | Pos Esteira: " + posicao + "%n");
 
         tail = (tail + 1) % 40;
 
@@ -51,7 +51,7 @@ public class Fabrica {
     }
 
     public void iniciarServidor() {
-        try (ServerSocket server = new ServerSocket(12345)) { // [cite: 67]
+        try (ServerSocket server = new ServerSocket(12345)) {
             while (true) {
                 Socket lojaSocket = server.accept();
                 new Thread(() -> enviarParaLoja(lojaSocket)).start();
@@ -62,7 +62,11 @@ public class Fabrica {
     }
 
     private void enviarParaLoja(Socket s) {
-        try (ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream())) {
+        try {
+            ObjectInputStream inId = new ObjectInputStream(s.getInputStream());
+            int idLojaCompradora = inId.readInt();
+
+            ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
             while (true) {
                 itensEsteira.acquire();
                 mutexEsteira.acquire();
@@ -75,25 +79,23 @@ public class Fabrica {
                 mutexEsteira.release();
                 vagasEsteira.release();
 
-                out.writeObject(v); // [cite: 52]
+                v.setLojaId(idLojaCompradora);
+                out.writeObject(v);
+                out.flush();
 
-                // Log de Venda para Loja [cite: 46]
-                System.out.printf("VENDA PARA LOJA: " + v + " | Saiu da Pos: " + posOriginal + "%n");
+                System.out.printf("LOG VENDA LOJA: %s | Loja: %d | Saiu da Pos Fabrica: %d%n",
+                        v.toString(), idLojaCompradora, posOriginal);
             }
-        } catch (Exception e) {
-            System.out.printf("Conexão com loja encerrada.%n");
-        }
+        } catch (Exception _) { }
     }
 
     public static void main(String[] args) {
         Fabrica fabrica = new Fabrica();
 
-        // Inicia as 4 estações [cite: 13]
         for (int i = 1; i <= 4; i++) {
             new Estacao(i, fabrica).iniciar();
         }
 
-        // Inicia o serviço de rede para as lojas [cite: 63]
         fabrica.iniciarServidor();
     }
 }

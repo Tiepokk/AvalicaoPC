@@ -4,8 +4,8 @@ import java.util.concurrent.Semaphore;
 class Estacao {
     private final int id;
     private final Fabrica fabrica;
-    private final Semaphore[] ferramentas = new Semaphore[5]; // [cite: 14]
-    private final Semaphore limit = new Semaphore(4); // Previne Deadlock [cite: 71]
+    private final Semaphore[] ferramentas = new Semaphore[5];
+    private final Semaphore limit = new Semaphore(4);
 
     public Estacao(int id, Fabrica f) {
         this.id = id; this.fabrica = f;
@@ -26,8 +26,8 @@ class Estacao {
             try {
                 while (true) {
                     est.limit.acquire();
-                    est.ferramentas[fId].acquire(); // Esquerda [cite: 15]
-                    est.ferramentas[(fId + 1) % 5].acquire(); // Direita [cite: 15]
+                    est.ferramentas[fId].acquire();
+                    est.ferramentas[(fId + 1) % 5].acquire();
 
                     est.fabrica.produzir(est.id, fId);
 
@@ -36,7 +36,7 @@ class Estacao {
                     est.limit.release();
                     Thread.sleep(100);
                 }
-            } catch (InterruptedException e) { }
+            } catch (InterruptedException _) { }
         }
     }
 }

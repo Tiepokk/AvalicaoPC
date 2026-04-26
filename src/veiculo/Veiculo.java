@@ -1,4 +1,4 @@
-package comum;
+package veiculo;
 import java.io.Serializable;
 
 public class Veiculo implements Serializable {
@@ -7,8 +7,7 @@ public class Veiculo implements Serializable {
     private final String tipo;
     private final int estacaoId;
     private final int funcionarioId;
-    private int posFabrica;
-    private int posLoja;
+    private int lojaId;
 
     public Veiculo(int id, String cor, String tipo, int estacaoId, int funcionarioId) {
         this.id = id;
@@ -18,8 +17,10 @@ public class Veiculo implements Serializable {
         this.funcionarioId = funcionarioId;
     }
 
-    public void setPosFabrica(int pos) { this.posFabrica = pos; }
-    public void setPosLoja(int pos) { this.posLoja = pos; }
+    public int getLojaId() { return lojaId; }
+    public void setLojaId(int id) { this.lojaId = id; }
+    public void setPosFabrica(int pos) {}
+    public void setPosLoja(int pos) {}
 
     @Override
     public String toString() {
